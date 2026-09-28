@@ -12,6 +12,11 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const os = require("os");
 const crypto = require("crypto");
+if (process.env.IRFLOW_USER_DATA_DIR) {
+  const userData = path.resolve(process.env.IRFLOW_USER_DATA_DIR);
+  fs.mkdirSync(userData, { recursive: true });
+  app.setPath("userData", userData);
+}
 const TimelineDB = require("./db");
 const { getXLSXSheets, extractResidentData } = require("./parsers");
 const { createUpdateController } = require("./updater");
@@ -22,6 +27,16 @@ const { shouldHideWindowOnClose, restoreOrCreateWindow } = require("./utils/app-
 const { createFatalRecovery } = require("./utils/fatal-recovery");
 const { buildMenu: _buildMenu } = require("./menu");
 const packageMeta = require("../package.json");
+const { windowChrome, commandLineFiles, usesCommandLineFileOpen } = require("./utils/desktop-platform");
+
+// Explorer and Linux desktop/CLI launches open files through argv, including when
+// the app is already running. macOS delivers these through the open-file event.
+if (usesCommandLineFileOpen() && !app.requestSingleInstanceLock()) {
+  app.quit();
+  return;
+}
+const pendingCommandLineFiles = usesCommandLineFileOpen()
+  ? commandLineFiles(process.argv, { packaged: app.isPackaged }) : [];
 
 // Raise V8 heap limit to 16GB — needed for importing large forensic images (20GB+)
 // app.commandLine.appendSwitch only affects renderer processes; for the main process
@@ -434,6 +449,18 @@ app.on("open-file", (event, filePath) => {
   }
 });
 
+app.on("second-instance", (_event, argv, workingDirectory) => {
+  const files = commandLineFiles(argv, { packaged: app.isPackaged, cwd: workingDirectory });
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isLoading()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    for (const file of files) enqueueImport(file);
+  } else {
+    pendingCommandLineFiles.push(...files);
+  }
+});
+
 // ── Window ─────────────────────────────────────────────────────────
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -441,9 +468,7 @@ function createWindow() {
     height: 950,
     minWidth: 900,
     minHeight: 600,
-    titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 16, y: 16 },
-    vibrancy: "under-window",
+    ...windowChrome(),
     backgroundColor: "#0f1114",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -500,6 +525,7 @@ function createWindow() {
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
     fatalRecovery.markStableStartup();
+    for (const file of pendingCommandLineFiles.splice(0)) enqueueImport(file);
     if (app.pendingFilePath) {
       enqueueImport(app.pendingFilePath);
       delete app.pendingFilePath;

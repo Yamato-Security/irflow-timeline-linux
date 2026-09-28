@@ -2,9 +2,23 @@
 
 ![IRFlow Timeline home screen — capability launcher with Process Inspector, Lateral Movement, Persistence, Sigma, Collect AI Artifacts, Master File Table, USN Journal, and Open & Explore](assets/IRFlow-Timeline-Home.png)
 
-Native macOS forensic timeline analysis. Import, search, and investigate EVTX, CSV, XLSX, Plaso, `$MFT`, `$J`, and local AI assistant artifacts — with **AI Secret Hunt** and the analytics DFIR professionals actually need. Built on Electron + SQLite to handle millions of rows without breaking a sweat.
+> [!IMPORTANT]
+> This repository is Yamato Security's Linux fork of [Renzon Cruz's original IRFlow Timeline](https://github.com/r3nzsec/irflow-timeline). We created it because the original project did not provide a Linux port or Linux release packages. The application design and the great majority of its functionality come from Renzon's project; the Linux packaging, compatibility work, and validation are maintained here.
 
-Inspired by Eric Zimmerman's Timeline Explorer for Windows.
+Native forensic timeline analysis for glibc-based Linux distributions on x64 and ARM64. Import, search, and investigate EVTX, CSV, TSV, XLSX, Plaso, `$MFT`, `$J`, triage collections, and local AI-assistant artifacts. IRFlow Timeline uses Electron, SQLite, and FTS5 to keep multi-million-row investigations responsive.
+
+## Timeline Explorer-style workflow, with more DFIR capabilities
+
+IRFlow Timeline keeps the familiar parts of Eric Zimmerman's Timeline Explorer—fast tabular review, sorting, filtering, searching, column management, bookmarks, and export—but goes substantially beyond a timeline grid:
+
+- **Direct evidence ingestion** — Open raw EVTX, raw NTFS `$MFT` and `$UsnJrnl` (`$J`), Plaso databases, CSV, TSV, and XLSX without first converting everything to a common CSV.
+- **Built-in investigation views** — Process trees, lateral-movement graphs, RDP session reconstruction, persistence analysis, timestomping detection, ransomware-impact analysis, IOC review, and file-activity heatmaps.
+- **Detection and enrichment** — Run bundled Hayabusa/Sigma rules against EVTX and enrich indicators through VirusTotal with local caching.
+- **Cross-source analysis** — Work with multiple evidence tabs, correlate related telemetry, compare timelines, group events, and pivot between findings and source rows.
+- **Large-dataset performance** — SQLite-backed imports, streaming parsers, virtualized grids, indexes, and FTS5 search support timelines containing millions of rows.
+- **Windows artifact workflows** — KAPE/triage discovery, VHDX artifact extraction, RDP bitmap-cache recovery with bundled bmc-tools and Python, and offline EVTX message rendering.
+- **AI application forensics** — Collect and normalize histories from Claude Code, Codex, ChatGPT, Gemini CLI, Cursor, Copilot, Windsurf, Continue, and other supported assistants, including secret/token exposure checks.
+- **Analyst reporting** — Tags, bookmarks, saved sessions, filtered exports, evidence provenance, and HTML/PDF reporting from analyzer results.
 
 ### Key Features
 
@@ -18,20 +32,21 @@ Inspired by Eric Zimmerman's Timeline Explorer for Windows.
 - **Persistence Analyzer** — 30+ persistence techniques with account chain detection, cross-technique correlation, and PowerShell 4104 script block reassembly
 - **IOC Matching** — 17+ indicator categories with auto-defanging, inline highlighting, CSV/HTML export with VT enrichment data
 
-For the full feature list and documentation, visit the **[IRFlow Timeline Docs](https://r3nzsec.github.io/irflow-timeline/)**.
+For the upstream feature documentation, visit the **[original IRFlow Timeline documentation](https://r3nzsec.github.io/irflow-timeline/)**. Linux package and runtime instructions are in [LINUX.md](LINUX.md).
 
 ## Building from Source
 
 **Prerequisites (for developers only):**
-- Node.js 22.14+: `brew install node`
-- Xcode CLI tools: `xcode-select --install` (for native module compilation)
-- macOS 12+ (Monterey or later)
+- A glibc-based Linux desktop
+- Node.js 22.14 or later
+- An x64 or ARM64 system matching the build you want to run
 
 ```bash
-git clone https://github.com/r3nzsec/irflow-timeline.git
-cd irflow-timeline
-npm install
-npx electron-rebuild -f -w better-sqlite3
+git clone https://github.com/Yamato-Security/irflow-timeline-linux.git
+cd irflow-timeline-linux
+npm ci --ignore-scripts
+npx patch-package
+node node_modules/electron/install.js
 
 # Development (hot-reload)
 npm run dev
@@ -39,15 +54,17 @@ npm run dev
 # Build + launch
 npm run start
 
-# Package as universal DMG
-npm run dist:universal
+# Linux ARM64 AppImage + tar.gz
+npm run dist:linux:arm64
+# Or, for Intel/AMD Linux
+npm run dist:linux:x64
 ```
 
-Output in `release/`.
+Linux packages are written under `release/linux/`. Both AppImage and tar.gz packages bundle Hayabusa, its offline rules, and bmc-tools. The optional RDP bitmap-cache workflow uses the host's `python3`. The release packages are unsigned and intentionally do not inherit the original repository's automatic-update feed.
 
 ## Credits & Acknowledgments
 
-Inspired by [Eric Zimmerman's Timeline Explorer](https://ericzimmerman.github.io/).
+This Linux port is based on [IRFlow Timeline](https://github.com/r3nzsec/irflow-timeline), created by [Renzon Cruz](https://github.com/r3nzsec). IRFlow Timeline was inspired by [Eric Zimmerman's Timeline Explorer](https://ericzimmerman.github.io/).
 
 ### Open Source Projects
 
@@ -63,7 +80,8 @@ Inspired by [Eric Zimmerman's Timeline Explorer](https://ericzimmerman.github.io
 | **React** | UI rendering | [facebook/react](https://github.com/facebook/react) |
 | **Vite** | Build tooling and hot-reload | [vitejs/vite](https://github.com/vitejs/vite) |
 | **VitePress** | Documentation site | [vuejs/vitepress](https://github.com/vuejs/vitepress) |
-| **electron-builder** | macOS DMG packaging | [electron-userland/electron-builder](https://github.com/electron-userland/electron-builder) |
+| **electron-builder** | Linux and macOS application packaging | [electron-userland/electron-builder](https://github.com/electron-userland/electron-builder) |
+| **Hayabusa** | Sigma-based Windows event-log detection | [Yamato-Security/hayabusa](https://github.com/Yamato-Security/hayabusa) |
 | **bmc-tools** | RDP Bitmap Cache recovery | [ANSSI-FR/bmc-tools](https://github.com/ANSSI-FR/bmc-tools) |
 
 ### DFIR Community

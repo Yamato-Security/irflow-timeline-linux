@@ -1,7 +1,8 @@
 {
   "name": "irflow-timeline",
   "version": "1.0.13",
-  "description": "SQLite-backed DFIR workspace for macOS. Large forensic datasets, native artifacts, AI application histories, and OS activity telemetry become searchable timelines with source provenance.",
+  "description": "SQLite-backed DFIR workspace packaged for glibc Linux on x64 and ARM64. Large forensic datasets, native artifacts, AI application histories, and OS activity telemetry become searchable timelines with source provenance.",
+  "desktopName": "IRFlow Timeline",
   "main": "electron/main.js",
   "author": "DFIR Community",
   "license": "Apache-2.0",
@@ -11,6 +12,9 @@
   "scripts": {
     "dev": "concurrently \"vite\" \"TLE_DEV_SERVER=1 wait-on http://localhost:5173 && TLE_DEV_SERVER=1 electron .\"",
     "build:renderer": "vite build",
+    "dist:linux:x64": "node scripts/bundle-linux-tools.cjs x64 && npm run build:renderer && electron-builder --config electron-builder.linux.cjs --linux --x64",
+    "dist:linux:arm64": "node scripts/bundle-linux-tools.cjs arm64 && npm run build:renderer && electron-builder --config electron-builder.linux.cjs --linux --arm64",
+    "dist:linux:arm64:dir": "node scripts/bundle-linux-tools.cjs arm64 && npm run build:renderer && electron-builder --config electron-builder.linux.cjs --linux --arm64 --dir",
     "start": "npm run build:renderer && electron .",
     "bundle:hayabusa": "bash scripts/bundle-hayabusa.sh",
     "bundle:bmc-tools": "bash scripts/bundle-bmc-tools.sh",
