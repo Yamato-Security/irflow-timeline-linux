@@ -4,6 +4,8 @@
 
 > [!IMPORTANT]
 > This repository is Yamato Security's Linux fork of [Renzon Cruz's original IRFlow Timeline](https://github.com/r3nzsec/irflow-timeline). We created it because the original project did not provide a Linux port or Linux release packages. The application design and the great majority of its functionality come from Renzon's project; the Linux packaging, compatibility work, and validation are maintained here.
+>
+> It also includes the color schemes from Yamato Security's [macOS fork](https://github.com/Yamato-Security/irflow-timeline-mac): **Dark Mode**, **Light Mode**, **Spring**, **Sakura**, **Summer**, **Autumn**, **Winter** and **Christmas**. Pick one from the toolbar's color-scheme dropdown or **Tools → Color Scheme**; the choice is remembered across launches.
 
 Native forensic timeline analysis for glibc-based Linux distributions on x64 and ARM64. Import, search, and investigate EVTX, CSV, TSV, XLSX, Plaso, `$MFT`, `$J`, triage collections, and local AI-assistant artifacts. IRFlow Timeline uses Electron, SQLite, and FTS5 to keep multi-million-row investigations responsive.
 

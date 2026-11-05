@@ -3,14 +3,14 @@
 This Linux port is maintained by Yamato Security and is based on
 [Renzon Cruz's original IRFlow Timeline](https://github.com/r3nzsec/irflow-timeline).
 It exists because the original project did not provide a Linux port or Linux
-release packages. Version 1.0.13 supports glibc-based x64 and ARM64 desktop
+release packages. Version 1.0.14 supports glibc-based x64 and ARM64 desktop
 distributions and was built and validated on Kali Linux ARM64.
 
 ## Run
 
 Choose the package matching the output of `uname -m`:
 
-- `x86_64`: use `IRFlow-Timeline-1.0.13-linux-x86_64.AppImage` or the `x64` tarball.
+- `x86_64`: use `IRFlow-Timeline-1.0.14-linux-x86_64.AppImage` or the `x64` tarball.
 - `aarch64` or `arm64`: use the `arm64` AppImage or tarball.
 
 Download packages and the checksum manifest from this repository's
@@ -19,8 +19,8 @@ Download packages and the checksum manifest from this repository's
 For the AppImage:
 
 ```bash
-chmod +x IRFlow-Timeline-1.0.13-linux-arm64.AppImage
-./IRFlow-Timeline-1.0.13-linux-arm64.AppImage
+chmod +x IRFlow-Timeline-1.0.14-linux-arm64.AppImage
+./IRFlow-Timeline-1.0.14-linux-arm64.AppImage
 ```
 
 If FUSE is unavailable, use the tarball. The AppImage's
