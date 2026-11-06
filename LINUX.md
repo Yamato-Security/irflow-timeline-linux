@@ -70,7 +70,7 @@ from portable, read-only application media.
 ## Validation
 
 Run `npm test` for source-level coverage. The packaged ARM64 application is also
-tested under Xvfb on Kali Linux to exercise native Electron, SQLite/FTS5, the
+tested under Xvfb on Kali Linux to exercise native Electron, DuckDB, SQLite, the
 sandboxed preload bridge, renderer, worker imports, command-line file opening,
 single-instance forwarding, Unicode paths, Hayabusa, bmc-tools discovery, and
 offline EVTX parsing/message rendering.
