@@ -1,5 +1,14 @@
 const base = require("./electron-builder.config.cjs");
 
+// Modified by Yamato Security, 2026-11-06: keep only the target's DuckDB library. The
+// packaging scripts run `--linux --x64` or `--linux --arm64` and fetch that architecture's
+// @duckdb/node-bindings-linux-* package first (scripts/ensure-duckdb-bindings.cjs).
+const linuxArch = process.argv.includes("--arm64") ? "arm64" : "x64";
+const DUCKDB_BINDINGS = ["darwin-arm64", "darwin-x64", "linux-arm64", "linux-arm64-musl", "linux-x64", "linux-x64-musl", "win32-arm64", "win32-x64"];
+const otherDuckdbBindings = DUCKDB_BINDINGS
+  .filter((b) => b !== `linux-${linuxArch}`)
+  .map((b) => `!node_modules/@duckdb/node-bindings-${b}{,/**}`);
+
 module.exports = {
   appId: base.appId,
   productName: base.productName,
@@ -8,7 +17,7 @@ module.exports = {
   // as an update feed. Explicit IRFLOW/TLE_UPDATE_BASE_URL configuration still
   // flows through from the base configuration.
   publish: base.publish ?? null,
-  files: [...base.files, "!node_modules/@ts-evtx/messages/assets/**"],
+  files: [...base.files, "!node_modules/@ts-evtx/messages/assets/**", ...otherDuckdbBindings],
   asarUnpack: base.asarUnpack,
   extraResources: [
     { from: "linux-vendor/${arch}/hayabusa", to: "hayabusa" },
@@ -27,7 +36,7 @@ module.exports = {
     syncDesktopName: true,
     icon: "assets/icon.png",
     category: "Utility",
-    synopsis: "SQLite-backed DFIR timeline analysis",
+    synopsis: "DuckDB-backed DFIR timeline analysis",
     description: "Import and investigate EVTX, CSV, TSV, XLSX, Plaso, NTFS, triage, and AI-assistant artifacts.",
   },
   // The legacy AppImage target otherwise places --no-sandbox in its desktop
